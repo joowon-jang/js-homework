@@ -229,7 +229,8 @@ body {
   color: #fff;
   border: 0;
   margin-top: 1rem;
-  cursor: pointer;
+  /* 페이지 로딩 시 btn-login이 비활성화 상태임을 보여주기 위해 cursor 속성 변경했음 */
+  cursor: no-drop;
 }
 
 /* 공통 에러 메세지 */
