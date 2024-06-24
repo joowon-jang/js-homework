@@ -11,21 +11,26 @@
 
 ## JS Code
 
-- user 정보를 배열로 만듬
+- user 정보를 배열로 만듬 -> 다시 객체로 바꿈.
 ```js
-const user = [{
+const user = {
   id: "asd@naver.com",
   pw: "spdlqj123!@",
-}];
+};
 ```
-> user의 id와 pw를 체크해서 목록에 있으면 로그인되는 것이므로 여러 명의 유저를 체크한다고 생각해서 유저 정보를 배열로 만들었음
+> user의 id와 pw를 체크해서 목록에 있으면 로그인되는 것이므로 여러 명의 유저를 체크한다고 생각해서 유저 정보를 배열로 만들었음.
+>
+> -> 서버에서 비교하는 상황으로 가정해 다시 객체로 변경.
 
 <br/>
 
 - id와 pw형식이 맞지 않으면 버튼을 클릭할 수 없게 설정하는 함수
+
+html
 ```html
 <button type="submit" class="btn-login" disabled>로그인</button>
 ```
+css
 ```css
 .btn-login {
   background: #03cf5d;
@@ -37,6 +42,7 @@ const user = [{
   cursor: no-drop;
 }
 ```
+js
 ```js
 /* ----------------------------- 버튼 활성화/비활성화 함수 ----------------------------- */
 function manageBtnStatus(condition) {
@@ -62,28 +68,35 @@ function manageBtnStatus(condition) {
 const handleInput = (function() {
 
   // id와 pw가 모두 올바른 형식인지 체크하는 상태 변수
-  let isCorrect = false;
+  let emailChecked = false;
+  let passwordChecked = false;
 
   // 내부함수에서 매개변수로 event 객체 전달받음
   return function(e) {
+    const target = e.target;
+    
     // event target이 email input일 경우
-    if (e.target.type === "email") {
-      emailReg(e.target.value) ? e.target.classList.remove("is--invalid") : e.target.classList.add("is--invalid");
+    if (target.type === "email") {
+      if(emailReg(target.value)) {
+        target.classList.remove("is--invalid");
+        emailChecked = true;
+       }
+       else {
+        target.classList.add("is--invalid");
+       } 
     }
     // event target이 password input일 경우
-    else if (e.target.type === "password") {
-      pwReg(e.target.value) ? e.target.classList.remove("is--invalid") : e.target.classList.add("is--invalid");
+    else if (target.type === "password") {
+      if(pwReg(target.value)) {
+        target.classList.remove("is--invalid")
+        passwordChecked = true;
+       } else {
+        target.classList.add("is--invalid");
+       }
     }
 
-    // 상태 변수 관리
-    (userEmailInput.classList.contains("is--invalid") || 
-    userEmailInput.value == '' || 
-    userPasswordInput.classList.contains("is--invalid") || 
-    userPasswordInput.value == '')
-      ? isCorrect = false : isCorrect = true;
-
     // 상태에 따라 버튼 활성화/비활성화
-    manageBtnStatus(isCorrect);
+    manageBtnStatus(emailChecked && passwordChecked);
   }
 })();
 ```
@@ -92,29 +105,36 @@ const handleInput = (function() {
 > 상태 변수를 전역에 노출하지 않기 위해 closure로 구현
 >
 > addEventListener() 메서드에 콜백함수를 전달할 때, 함수 실행부로 인한 혼란을 방지하기 위해 즉시실행 후 handleInput 변수에 할당
+>
+> -> email과 password를 체크하는 과정에서 상태변수를 함께 관리
 
 <br/>
 
-- btnLogin 버튼에 EventListener추가
+- btnLogin 버튼 이벤트 핸들링 함수
 ```js
-/* ----------------------------- button의 이벤트 추가 ----------------------------- */
-btnLogin.addEventListener('click',function(e) {
+/* -------------------------- btnLogin의 이벤트 핸들링 함수 -------------------------- */
+function handleBtnClick(e) {
   // form action 방지
   e.preventDefault();
 
-  // forEach메서드가 아닌 일반 for문을 사용
-  // 왜냐하면 페이지 이동시에는 return으로 함수를 종료함으로써 아래의 alert()를 실행하지 않기 위함
-  for(let i = 0; i < user.length; i++) {
-    if(user[i].id === userEmailInput.value && user[i].pw === userPasswordInput.value) {
-      window.location.href += 'welcome.html';
-      return;
-    }
-  }
+  try {
+    const id = emailInput.value;
+    const pw = passwordInput.value;
 
-  // id, pw가 일치하지 않을 때 input 칸을 비워줌
-  userEmailInput.value = '';
-  userPasswordInput.value = '';
-  
-  alert('아이디 또는 비밀번호가 일치하지 않습니다.')
-})
+    // 서버와의 통신에서 id, pw를 서버로 보내서 비교하는 상황처럼 가정
+    const getUserId = user.id;
+    const getUserPw = user.pw;
+
+    if (id === getUserId && pw === getUserPw) {
+      location.href = 'welcome.html';
+    }
+    else {
+      // id, pw가 일치하지 않을 때
+      alert('아이디 또는 비밀번호가 일치하지 않습니다.');
+    }
+
+  } catch {
+    
+  }
+}
 ```
