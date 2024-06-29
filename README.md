@@ -4,3 +4,6 @@
 
 ### Mission-1
 Link: [Mission-1 (README.md)](/mission01/naver_login/README.md)
+
+### Mission-2
+Link: [Mission-2 (README.md)](/mission02/README.md)
